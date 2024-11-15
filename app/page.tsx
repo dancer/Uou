@@ -25,7 +25,6 @@ const UouCat = () => {
       <P5Sketch onLoad={() => setIsLoaded(true)} />
       
       <div className={`relative z-10 min-h-screen ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-        {/* Rest of your JSX remains the same */}
         <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center">
           <h1 className="text-xl font-bold">uou.cat</h1>
           <div className="flex items-center gap-4">
