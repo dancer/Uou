@@ -1,101 +1,132 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import React, { useRef, useEffect, useState } from 'react'
+import p5 from 'p5'
+import { Twitter, Github } from 'lucide-react'
+
+const UouCat = () => {
+  const sketchRef = useRef<HTMLDivElement>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [memberCount, setMemberCount] = useState<number>(0)
+
+  useEffect(() => {
+    fetch('/api/members')
+      .then(res => res.json())
+      .then(data => setMemberCount(data.count))
+      .catch(error => {
+        console.error('Error fetching members:', error);
+        setMemberCount(0);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!sketchRef.current) return
+
+    const sketch = (p: p5) => {
+      let t = 0
+      let w: number
+      let h: number
+
+      const mag = (x: number, y: number) => Math.sqrt(x * x + y * y)
+
+      const a = (x: number, y: number, d = mag(x / 8 - w/16, y / 8 - h/16) ** 2 / 99) => {
+        const k = x / 8 - w/16
+        const e = y / 8 - h/16
+        const q = x / 3 + k * 0.5 / Math.cos(y * 5) * Math.sin(d * d - t)
+        const c = d / 2 - t / 8
+        return [
+          q * Math.sin(c) + e * Math.sin(d + k - t) + w/2,
+          (q + y / 8 + d * 9) * Math.cos(c) + h/2
+        ]
+      }
+
+      p.setup = () => {
+        w = p.windowWidth
+        h = p.windowHeight
+        p.createCanvas(w, h)
+        setIsLoaded(true)
+      }
+
+      p.draw = () => {
+        p.background(0)
+        p.stroke(255, 30)
+        for (let y = 0; y < h; y += 10) {
+          for (let x = 0; x < w; x += 10) {
+            const [px, py] = a(x, y)
+            p.point(px, py)
+          }
+        }
+        t += Math.PI / 360
+      }
+
+      p.windowResized = () => {
+        w = p.windowWidth
+        h = p.windowHeight
+        p.resizeCanvas(w, h)
+      }
+    }
+
+    const p5Instance = new p5(sketch, sketchRef.current)
+
+    return () => {
+      p5Instance.remove()
+    }
+  }, [])
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="relative min-h-screen bg-black text-white">
+      <div ref={sketchRef} className="fixed inset-0 z-0" />
+      
+      <div className={`relative z-10 min-h-screen ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center">
+          <h1 className="text-xl font-bold">uou.cat</h1>
+          <div className="flex items-center gap-4">
+            <a 
+              href="https://github.com/uoucat" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:opacity-75 transition-opacity"
+              aria-label="Visit us on GitHub"
+            >
+              <Github className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://twitter.com/uoucat" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:opacity-75 transition-opacity"
+              aria-label="Follow us on Twitter"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+          </div>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {/* Main Content */}
+        <main className="flex items-center justify-center min-h-screen px-4">
+          <div className="max-w-lg text-center space-y-8">
+            <p className="text-base">
+              We are the innovation team behind spiritu.al & more
+            </p>
+            
+            <div className="space-y-4">
+              <p className="text-xs opacity-75">
+                Currently at {memberCount} members. Want to grind with us?
+              </p>
+              <a 
+                href="mailto:hi@uou.cat"
+                className="inline-block bg-white text-black px-6 py-2 rounded-lg hover:bg-white/80 transition-colors text-xs"
+              >
+                hi@uou.cat
+              </a>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
-  );
+  )
 }
+
+export default UouCat
+
