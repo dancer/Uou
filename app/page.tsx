@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import { Twitter, Github } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-// Dynamically import P5Sketch with SSR disabled
 const P5Sketch = dynamic(() => import('./components/P5Sketch'), {
   ssr: false
 })
@@ -12,13 +11,24 @@ const P5Sketch = dynamic(() => import('./components/P5Sketch'), {
 const UouCat = () => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [memberCount, setMemberCount] = useState<number>(0)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/members')
       .then(res => res.json())
-      .then(data => setMemberCount(data.count))
-      .catch(error => console.error('Error fetching members:', error))
-  }, [])
+      .then(data => {
+        if (data.error) {
+          console.error('API Error:', data.error);
+          setError(data.error);
+        } else {
+          setMemberCount(data.count);
+        }
+      })
+      .catch(error => {
+        console.error('Fetch Error:', error);
+        setError(error.message);
+      });
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-black text-white">
@@ -58,6 +68,11 @@ const UouCat = () => {
             <div className="space-y-4">
               <p className="text-xs opacity-75">
                 Currently at {memberCount} members. Want to grind with us?
+                {error && (
+                  <span className="text-red-500 block mt-1">
+                    Error loading members: {error}
+                  </span>
+                )}
               </p>
               <a 
                 href="mailto:hi@uou.cat"
