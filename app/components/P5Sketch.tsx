@@ -39,10 +39,13 @@ const P5Sketch: React.FC<P5SketchProps> = ({ onLoad }) => {
       }
 
       p.draw = () => {
-        p.background(0)
-        p.stroke(255, 30)
-        for (let y = 0; y < h; y += 10) {
-          for (let x = 0; x < w; x += 10) {
+        p.background(0, 180) // Added alpha for slight trail effect
+        p.strokeWeight(1) // Slightly thicker points
+        p.stroke(255, 50) // Increased opacity from 30 to 80
+        
+        // Decreased step size for more points
+        for (let y = 0; y < h; y += 8) {
+          for (let x = 0; x < w; x += 8) {
             const [px, py] = a(x, y)
             p.point(px, py)
           }
@@ -67,4 +70,4 @@ const P5Sketch: React.FC<P5SketchProps> = ({ onLoad }) => {
   return <div ref={sketchRef} className="fixed inset-0 z-0" />
 }
 
-export default P5Sketch 
+export default P5Sketch
