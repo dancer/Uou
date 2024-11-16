@@ -41,7 +41,7 @@ const P5Sketch: React.FC<P5SketchProps> = ({ onLoad }) => {
       p.draw = () => {
         p.background(0, 180) // Added alpha for slight trail effect
         p.strokeWeight(1) // Slightly thicker points
-        p.stroke(255, 35) // Increased opacity from 30 to 80
+        p.stroke(255, 50) // Increased opacity from 30 to 80
         
         // Decreased step size for more points
         for (let y = 0; y < h; y += 8) {
